@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -50,6 +51,31 @@ func (r *CalculatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
+	var calculator calculatorv1alpha1.Calculator
+	if err := r.Get(ctx, req.NamespacedName, &calculator); err != nil {
+		klog.Errorf("unable to fetch Calculator: %v", err)
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	klog.Infof("\nCalculator: %v\n", calculator)
+	switch calculator.Spec.Operation {
+	case "add":
+		calculator.Status.Result = calculator.Spec.NumberOne + calculator.Spec.NumberTwo
+	case "subtract":
+		calculator.Status.Result = calculator.Spec.NumberOne - calculator.Spec.NumberTwo
+	case "multiply":
+		calculator.Status.Result = calculator.Spec.NumberOne * calculator.Spec.NumberTwo
+	case "divide":
+		calculator.Status.Result = calculator.Spec.NumberOne / calculator.Spec.NumberTwo
+	default:
+		klog.Errorf("unknown operation: %v", calculator.Spec.Operation)
+	}
+
+	if err := r.Status().Update(ctx, &calculator); err != nil {
+		klog.Errorf("unable to update Calculator status: %v", err)
+		return ctrl.Result{}, err
+	}
+
+	klog.Infof("Calculator status updated successfully: %v", calculator.Status.Result)
 
 	return ctrl.Result{}, nil
 }
