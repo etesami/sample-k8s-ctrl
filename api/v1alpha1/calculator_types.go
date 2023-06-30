@@ -43,6 +43,10 @@ type CalculatorStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Number One",type="integer",JSONPath=".spec.numberone",description="Input number one"
+//+kubebuilder:printcolumn:name="Number Two",type="integer",JSONPath=".spec.numbertwo",description="Input number two"
+//+kubebuilder:printcolumn:name="Operation",type="string",JSONPath=".spec.operation",description="Operation"
+//+kubebuilder:printcolumn:name="Result",type="integer",JSONPath=".status.result",description="Sum of two numbers"
 
 // Calculator is the Schema for the calculators API
 type Calculator struct {
