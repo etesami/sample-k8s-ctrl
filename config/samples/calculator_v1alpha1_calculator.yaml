@@ -1,12 +1,15 @@
 apiVersion: calculator.samples-k8s-ctrl.github.com/v1alpha1
 kind: Calculator
 metadata:
-  labels:
-    app.kubernetes.io/name: calculator
-    app.kubernetes.io/instance: calculator-sample
-    app.kubernetes.io/part-of: sample-k8s-ctrl
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: sample-k8s-ctrl
-  name: calculator-sample
+  # labels:
+  #   app.kubernetes.io/name: calculator
+  #   app.kubernetes.io/instance: calculator-sample
+  #   app.kubernetes.io/part-of: sample-k8s-ctrl
+  #   app.kubernetes.io/managed-by: kustomize
+  #   app.kubernetes.io/created-by: sample-k8s-ctrl
+  name: calculator-sample1
 spec:
   # TODO(user): Add fields here
+  numberone: 30
+  numbertwo: 20
+  operation: "add"
