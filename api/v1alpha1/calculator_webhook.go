@@ -60,7 +60,7 @@ func (r *Calculator) ValidateCreate() (admission.Warnings, error) {
 
 	// TODO(user): fill in your validation logic upon object creation.
 	klog.Infof("Validate create", "name", r.Name)
-	if !isInList([]string{"add", "sub", "mul", "div"}, r.Spec.Operation) {
+	if !isInList([]string{"add", "subtract", "multiply", "divide"}, r.Spec.Operation) {
 		return nil, fmt.Errorf("Operation %s is not supported", r.Spec.Operation)
 	}
 	return nil, nil

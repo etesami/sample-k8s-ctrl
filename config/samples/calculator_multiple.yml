@@ -24,3 +24,12 @@ spec:
   numberone: 10
   numbertwo: 20
   operation: "subtract"
+---
+apiVersion: calculator.samples-k8s-ctrl.github.com/v1alpha1
+kind: Calculator
+metadata:
+  name: calculator-sample4
+spec:
+  numberone: 10
+  numbertwo: 20
+  operation: "add"

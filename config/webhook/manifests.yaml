@@ -1,0 +1,52 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-calculator-samples-k8s-ctrl-github-com-v1alpha1-calculator
+  failurePolicy: Fail
+  name: mcalculator.kb.io
+  rules:
+  - apiGroups:
+    - calculator.samples-k8s-ctrl.github.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - calculators
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-calculator-samples-k8s-ctrl-github-com-v1alpha1-calculator
+  failurePolicy: Fail
+  name: vcalculator.kb.io
+  rules:
+  - apiGroups:
+    - calculator.samples-k8s-ctrl.github.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - calculators
+  sideEffects: None
