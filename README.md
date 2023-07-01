@@ -70,6 +70,11 @@ klog.Infof("Calculator status updated successfully: %v", calculator.Status.Resul
 // Omitted for brevity
 
 ```
+
+```bash
+make manifest
+make install
+```
 ## Implementing a Validating Webhook
 ```bash
 kubebuilder create webhook --group calculator --version v1alpha1 --kind Calculator --defaulting --programmatic-validation
@@ -103,6 +108,20 @@ func isInList(list []string, value string) bool {
 ```
 
 Look [here](https://github.com/kubernetes-sigs/kubebuilder/pull/3456/files) for a bug in Kubebuilder version v3.11.0.
+
+```bash
+make manifest
+make install
+
+# To build and push the image to repository:
+make docker-build docker-push IMG=etesami/sample-k8s-ctrl:latest
+
+# To deply the controller as pod in the cluster
+make deploy IMG=etesami/sample-k8s-ctrl:latest
+
+# To undeploy
+make undeploy
+```
 
 ## Samples
 ```yml
