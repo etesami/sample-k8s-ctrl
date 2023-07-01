@@ -17,7 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
+
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -56,6 +59,10 @@ func (r *Calculator) ValidateCreate() (admission.Warnings, error) {
 	calculatorlog.Info("validate create", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
+	klog.Infof("Validate create", "name", r.Name)
+	if !isInList([]string{"add", "sub", "mul", "div"}, r.Spec.Operation) {
+		return nil, fmt.Errorf("Operation %s is not supported", r.Spec.Operation)
+	}
 	return nil, nil
 }
 
@@ -73,4 +80,13 @@ func (r *Calculator) ValidateDelete() (admission.Warnings, error) {
 
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil, nil
+}
+
+func isInList(list []string, value string) bool {
+	for _, item := range list {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }
