@@ -143,4 +143,18 @@ spec:
   numbertwo: 20
   operation: "add"
 ```
-  
+
+## Multi-Group APIs
+
+After the first version, we moved to the multi-group APIs. We need to follow this [guide](https://kubebuilder.io/migration/multi-group.html) first and then we can create a new API under a new group. 
+
+```bash
+kubebuilder edit --multigroup=true
+# Create calculator folder in api/ and internal/controller directories
+# Move related files in each folder to the newly created folder
+# Change all path every where related to api/v1alpha1 to api/calculator/v1alpha1
+# Change all path every where related to internal/controller to internal/controller/calculator
+
+# Create the new API under a new group
+kubebuilder create api --group test1 --version v1alpha1 --kind SimpleDeployment
+```

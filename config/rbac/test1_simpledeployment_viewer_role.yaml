@@ -1,0 +1,27 @@
+# permissions for end users to view simpledeployments.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: simpledeployment-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: sample-k8s-ctrl
+    app.kubernetes.io/part-of: sample-k8s-ctrl
+    app.kubernetes.io/managed-by: kustomize
+  name: simpledeployment-viewer-role
+rules:
+- apiGroups:
+  - test1.samples-k8s-ctrl.github.com
+  resources:
+  - simpledeployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - test1.samples-k8s-ctrl.github.com
+  resources:
+  - simpledeployments/status
+  verbs:
+  - get

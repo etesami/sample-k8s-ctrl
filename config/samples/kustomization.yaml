@@ -1,4 +1,5 @@
 ## Append samples of your project ##
 resources:
 - calculator_v1alpha1_calculator.yaml
+- test1_v1alpha1_simpledeployment.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

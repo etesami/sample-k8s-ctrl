@@ -31,8 +31,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	calculatorv1alpha1 "github.com/etesami/sample-k8s-ctrl/api/v1alpha1"
-	"github.com/etesami/sample-k8s-ctrl/internal/controller"
+	calculatorv1alpha1 "github.com/etesami/sample-k8s-ctrl/api/calculator/v1alpha1"
+	test1v1alpha1 "github.com/etesami/sample-k8s-ctrl/api/test1/v1alpha1"
+	controller "github.com/etesami/sample-k8s-ctrl/internal/controller/calculator"
+	test1controller "github.com/etesami/sample-k8s-ctrl/internal/controller/test1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -45,6 +47,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(calculatorv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(test1v1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -98,6 +101,13 @@ func main() {
 	}
 	if err = (&calculatorv1alpha1.Calculator{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Calculator")
+		os.Exit(1)
+	}
+	if err = (&test1controller.SimpleDeploymentReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "SimpleDeployment")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

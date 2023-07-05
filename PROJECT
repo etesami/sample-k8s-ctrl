@@ -5,6 +5,7 @@
 domain: samples-k8s-ctrl.github.com
 layout:
 - go.kubebuilder.io/v4
+multigroup: true
 projectName: sample-k8s-ctrl
 repo: github.com/etesami/sample-k8s-ctrl
 resources:
@@ -16,5 +17,14 @@ resources:
   group: calculator
   kind: Calculator
   path: github.com/etesami/sample-k8s-ctrl/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: samples-k8s-ctrl.github.com
+  group: test1
+  kind: SimpleDeployment
+  path: github.com/etesami/sample-k8s-ctrl/api/test1/v1alpha1
   version: v1alpha1
 version: "3"

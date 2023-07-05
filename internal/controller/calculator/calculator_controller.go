@@ -25,7 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	calculatorv1alpha1 "github.com/etesami/sample-k8s-ctrl/api/v1alpha1"
+	calculatorv1alpha1 "github.com/etesami/sample-k8s-ctrl/api/calculator/v1alpha1"
 )
 
 // CalculatorReconciler reconciles a Calculator object
