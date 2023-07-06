@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -28,8 +29,14 @@ type SimpleDeploymentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of SimpleDeployment. Edit simpledeployment_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Replicas   *int32                `json:"replicas,omitempty"`
+	Selector   *metav1.LabelSelector `json:"selector,omitempty"`
+	Template   *v1.PodTemplateSpec   `json:"template,omitempty"`
+	MyMetadata *MyMetadataSpec       `json:"mymetadata,omitempty"`
+}
+
+type MyMetadataSpec struct {
+	Labels map[string]string `json:"labels"`
 }
 
 // SimpleDeploymentStatus defines the observed state of SimpleDeployment

@@ -1,12 +1,20 @@
 apiVersion: test1.samples-k8s-ctrl.github.com/v1alpha1
 kind: SimpleDeployment
 metadata:
-  labels:
-    app.kubernetes.io/name: simpledeployment
-    app.kubernetes.io/instance: simpledeployment-sample
-    app.kubernetes.io/part-of: sample-k8s-ctrl
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: sample-k8s-ctrl
   name: simpledeployment-sample
 spec:
-  # TODO(user): Add fields here
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+  mymetadata: 
+    labels: 
+      app: nginx
+        
