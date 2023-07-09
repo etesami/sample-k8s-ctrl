@@ -1,0 +1,33 @@
+apiVersion: test1.samples-k8s-ctrl.github.com/v1alpha1
+kind: ConfigDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: configdeployment
+    app.kubernetes.io/instance: configdeployment-sample
+    app.kubernetes.io/part-of: sample-k8s-ctrl
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: sample-k8s-ctrl
+  name: configdeployment-sample
+spec:
+  # TODO(user): Add fields here
+  configMap: my-configmap
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        env:
+          - name: KEY1
+            valueFrom:
+              configMapKeyRef:
+                name: my-configmap
+                key: app.properties
+  mymetadata: 
+    labels: 
+      app: nginx
+        
