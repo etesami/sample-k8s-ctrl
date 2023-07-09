@@ -24,7 +24,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -57,13 +56,13 @@ type SimpleDeploymentReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.4/pkg/reconcile
 func (r *SimpleDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx)
 
 	// TODO(user): your logic here
-	log := r.Log.WithValues("simpleDeployment", req.NamespacedName)
+	log.Info("simpleDeployment", req.NamespacedName)
 
 	var simpleDeployment test1v1alpha1.SimpleDeployment
-	klog.Infof("Fetching the simpledeployment")
+	log.Info("Fetching the simpledeployment")
 	if err := r.Get(ctx, req.NamespacedName, &simpleDeployment); err != nil {
 		log.Error(err, "unable to fetch SimpleDeployment")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
@@ -100,7 +99,7 @@ func (r *SimpleDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// 	deployment.Spec.Selector = &labelSelector
 	// }
 
-	klog.Infof("Calling SetControllerReference")
+	log.Info("Calling SetControllerReference")
 	if err := controllerutil.SetControllerReference(&simpleDeployment, deployment, r.Scheme); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -108,16 +107,16 @@ func (r *SimpleDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	foundDeployment := &kapps.Deployment{}
 	err := r.Get(ctx, types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, foundDeployment)
 	if err != nil && errors.IsNotFound(err) {
-		klog.Infof("Creating Deployment", "deployment", deployment.Name)
+		log.Info("Creating Deployment", "deployment", deployment.Name)
 		err = r.Create(ctx, deployment)
 	} else if err == nil {
 		if foundDeployment.Spec.Replicas != deployment.Spec.Replicas {
 			foundDeployment.Spec.Replicas = deployment.Spec.Replicas
-			klog.Info("Updating Deployment", "deployment", deployment.Name)
+			log.Info("Updating Deployment", "deployment", deployment.Name)
 			err = r.Update(ctx, foundDeployment)
 		}
 	} else {
-		klog.Error("88888888888888 Something else happened")
+		log.Error(err, "88888888888888 Something else happened")
 	}
 
 	return ctrl.Result{}, err
@@ -127,6 +126,6 @@ func (r *SimpleDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 func (r *SimpleDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&test1v1alpha1.SimpleDeployment{}).
-		// Owns(&kapps.Deployment{}).
+		Owns(&kapps.Deployment{}).
 		Complete(r)
 }
