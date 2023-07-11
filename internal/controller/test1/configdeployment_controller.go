@@ -25,14 +25,14 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/fields" // Required for Watching
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types" // Required for Watching
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/builder" // Required for Watching
+	"k8s.io/apimachinery/pkg/types"       // Required for Watching
+	ctrl "sigs.k8s.io/controller-runtime" // Required for Watching
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/handler" // Required for Watching
-	"sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/predicate" // Required for Watching
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil" // Required for Watching
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/log" // Required for Watching
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile" // Required for Watching
 
 	test1v1alpha1 "github.com/etesami/sample-k8s-ctrl/api/test1/v1alpha1"
@@ -70,17 +70,16 @@ func (r *ConfigDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// log := r.Log.WithValues("configDeployment", req.NamespacedName)
 
-	log.Info("Fetch the ConfigDeployment resource")
+	log.Info("---------- ---------- ---------- ---------- ---------- ---------- ---------- Reconciling", "[OBJECT]", req)
 	var configDeployment test1v1alpha1.ConfigDeployment
 	if err := r.Get(ctx, req.NamespacedName, &configDeployment); err != nil {
-		log.Error(err, "unable to fetch ConfigDeployment")
+		log.Error(err, "Unable to fetch ConfigDeployment")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		return ctrl.Result{}, nil
 	}
 
-	log.Info("Fetch the ConfigMap resource")
 	var configMapVersion string
 	if configDeployment.Spec.ConfigMap != "" {
 		foundConfigMap := &corev1.ConfigMap{}
@@ -89,8 +88,8 @@ func (r *ConfigDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			// If a configMap name is provided, then it must exist
 			// You will likely want to create an Event for the user to understand why their reconcile is failing.
-			log.Error(err, "ConfigMap not found. It does not exist.")
-			return ctrl.Result{}, err
+			log.Error(err, "ConfigMap not found. It is required for a ConfigDeployment object and it does not exist.")
+			return ctrl.Result{}, nil
 		}
 
 		// Hash the data in some way, or just use the version of the Object
@@ -101,9 +100,13 @@ func (r *ConfigDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// Set the information you care about
 	deployment := &kapps.Deployment{}
 	deployment.ObjectMeta.Namespace = configDeployment.Namespace
-	deployment.ObjectMeta.Name = configDeployment.Name
+	deployment.ObjectMeta.Name = configDeployment.Name + "-deploymentonly"
+	deployment.Spec.Template = *configDeployment.Spec.Template
+	deployment.Spec.Selector = configDeployment.Spec.Selector
+	deployment.Spec.Replicas = configDeployment.Spec.Replicas
+	deployment.Spec.Template.ObjectMeta.Labels = configDeployment.Spec.MyMetadata.Labels
+	deployment.ObjectMeta.Annotations = map[string]string{"configMapVersion": configMapVersion}
 
-	log.Info("Calling SetControllerReference")
 	if err := controllerutil.SetControllerReference(&configDeployment, deployment, r.Scheme); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -112,28 +115,60 @@ func (r *ConfigDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	err := r.Get(ctx, types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, foundDeployment)
 	if err != nil && errors.IsNotFound(err) {
 		log.Info("Creating Deployment", "deployment", deployment.Name)
-		deployment.Spec.Template = *configDeployment.Spec.Template
-		deployment.Spec.Selector = configDeployment.Spec.Selector
-		deployment.Spec.Template.ObjectMeta.Labels = configDeployment.Spec.MyMetadata.Labels
-		deployment.ObjectMeta.Annotations = map[string]string{"configMapVersion": configMapVersion}
 		err = r.Create(ctx, deployment)
 	} else if err == nil {
-		foundDeploymentVersion := foundDeployment.ObjectMeta.Annotations["configMapVersion"]
-		log.Info("Check", "[foundDeploymentVersion]", foundDeploymentVersion, "[configMapVersion]", configMapVersion)
-		if foundDeploymentVersion != configMapVersion {
-			log.Info("Updating", "[foundDeploymentVersion]", foundDeploymentVersion, "[configMapVersion]", configMapVersion)
-			foundDeployment.ObjectMeta.Annotations = map[string]string{"configMapVersion": configMapVersion}
-			if err := r.Update(ctx, foundDeployment); err != nil {
-				return ctrl.Result{}, err
-			} else {
-				log.Error(err, "Failed to update Deployment")
-			}
-		} else {
-			log.Info("Deployment exists", "[Resource version]", foundDeploymentVersion)
+		// We are about to update the found deployment (foundDeployment)
+		// with the new information (deployment)
+		foundDeployment.Spec.Replicas = deployment.Spec.Replicas
+		foundDeployment.Spec.Template = deployment.Spec.Template
+		foundDeployment.Spec.Selector = deployment.Spec.Selector
+		foundDeployment.Spec.Template.ObjectMeta.Labels = deployment.Spec.Template.ObjectMeta.Labels
+
+		var needUpdatePods bool = false
+		// Check to see if the reconcile was triggered by a change in the ConfigMap
+		if foundDeployment.ObjectMeta.Annotations["configMapVersion"] != configMapVersion {
+			log.Info("--- --- ---> ConfigMap has changed",
+				"[foundDeployment]", foundDeployment.ObjectMeta.Annotations["configMapVersion"],
+				"[configMapVersion]", configMapVersion)
+			foundDeployment.ObjectMeta.Annotations["configMapVersion"] = configMapVersion
+			// If the ConfigMap has changed, then we need to update the pods
+			needUpdatePods = true
 		}
+
+		log.Info("Start updating Deployment")
+		// Update the deployment with the new information
+		// Note: This does not force the pods to be re-created
+		// If the template has not changed this will not do anything
+		if err := r.Update(ctx, foundDeployment); err != nil {
+			log.Error(err, "Failed to update Deployment")
+			return ctrl.Result{}, err
+		} else {
+			log.Info("Resource updated.")
+		}
+
+		if needUpdatePods {
+			// Force to re-create pods
+			podList := &corev1.PodList{}
+			err = r.List(ctx, podList,
+				client.InNamespace(deployment.Namespace),
+				client.MatchingLabels{"app": deployment.Spec.Template.ObjectMeta.Labels["app"]})
+			if err != nil {
+				log.Error(err, "Failed to list pods")
+				return ctrl.Result{}, err
+			}
+
+			for _, pod := range podList.Items {
+				if err := r.Delete(ctx, &pod); err != nil {
+					log.Error(err, "failed to delete pod", "podName", pod.Name)
+					return ctrl.Result{}, err
+				}
+				log.Info("Delete the exisiting pod", "[NAME]", pod.Name)
+			}
+		}
+	} else {
+		log.Error(err, "Failed. Some other error.")
 	}
 
-	log.Info("-------------------------------------")
 	return ctrl.Result{}, err
 }
 
@@ -141,14 +176,16 @@ func (r *ConfigDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Req
 func (r *ConfigDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	// configMapField = ".spec.configMap"
 	// IndexField(ctx context.Context, obj Object, field string, extractValue IndexerFunc)
-	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &test1v1alpha1.ConfigDeployment{}, configMapField, func(rawObj client.Object) []string {
-		// Extract the ConfigMap name from the ConfigDeployment Spec, if one is provided
-		configDeployment := rawObj.(*test1v1alpha1.ConfigDeployment)
-		if configDeployment.Spec.ConfigMap == "" {
-			return nil
-		}
-		return []string{configDeployment.Spec.ConfigMap}
-	}); err != nil {
+	if err := mgr.GetFieldIndexer().IndexField(
+		context.Background(), &test1v1alpha1.ConfigDeployment{}, configMapField,
+		func(rawObj client.Object) []string {
+			// Extract the ConfigMap name from the ConfigDeployment Spec, if one is provided
+			configDeployment := rawObj.(*test1v1alpha1.ConfigDeployment)
+			if configDeployment.Spec.ConfigMap == "" {
+				return nil
+			}
+			return []string{configDeployment.Spec.ConfigMap}
+		}); err != nil {
 		return err
 	}
 
@@ -157,8 +194,6 @@ func (r *ConfigDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&kapps.Deployment{}).
 		Watches(
 			&corev1.ConfigMap{},
-			// &corev1.ConfigMap{},
-			// source.KindType: &corev1.ConfigMap{}},
 			handler.EnqueueRequestsFromMapFunc(r.findObjectsForConfigMap),
 			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{}),
 		).

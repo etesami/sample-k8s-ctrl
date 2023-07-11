@@ -30,6 +30,7 @@ type ConfigDeploymentSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	ConfigMap  string                `json:"configMap,omitempty"`
+	Replicas   *int32                `json:"replicas,omitempty"`
 	Selector   *metav1.LabelSelector `json:"selector,omitempty"`
 	Template   *v1.PodTemplateSpec   `json:"template,omitempty"`
 	MyMetadata *MyMetadataSpec       `json:"mymetadata,omitempty"`

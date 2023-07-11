@@ -3,17 +3,14 @@ kind: ConfigDeployment
 metadata:
   labels:
     app.kubernetes.io/name: configdeployment
-    app.kubernetes.io/instance: configdeployment-sample
-    app.kubernetes.io/part-of: sample-k8s-ctrl
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: sample-k8s-ctrl
-  name: configdeployment-sample
+  name: cf-deployment
 spec:
   # TODO(user): Add fields here
+  replicas: 1
   configMap: my-configmap
   selector:
     matchLabels:
-      app: nginx
+      app: nginx-configdeployment
   template:
     spec:
       containers:
@@ -29,5 +26,5 @@ spec:
                 key: app.properties
   mymetadata: 
     labels: 
-      app: nginx
+      app: nginx-configdeployment
         
