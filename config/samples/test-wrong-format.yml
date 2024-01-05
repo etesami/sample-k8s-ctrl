@@ -1,4 +1,4 @@
-apiVersion: calculator.samples-k8s-ctrl.github.com/v1alpha1
+apiVersion: calculator.sample-k8s-ctrl.github.com/v1alpha1
 kind: Calculator
 metadata:
   name: calculator-wrong1

@@ -16,6 +16,10 @@ resources:
   domain: sample-k8s-ctrl.github.com
   group: calculator
   kind: Calculator
-  path: github.com/etesami/sample-k8s-ctrl/api/v1alpha1
+  path: github.com/etesami/sample-k8s-ctrl/api/calculator/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"

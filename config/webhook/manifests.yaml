@@ -10,12 +10,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-calculator-samples-k8s-ctrl-github-com-v1alpha1-calculator
+      path: /mutate-calculator-sample-k8s-ctrl-github-com-v1alpha1-calculator
   failurePolicy: Fail
   name: mcalculator.kb.io
   rules:
   - apiGroups:
-    - calculator.samples-k8s-ctrl.github.com
+    - calculator.sample-k8s-ctrl.github.com
     apiVersions:
     - v1alpha1
     operations:
@@ -36,12 +36,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-calculator-samples-k8s-ctrl-github-com-v1alpha1-calculator
+      path: /validate-calculator-sample-k8s-ctrl-github-com-v1alpha1-calculator
   failurePolicy: Fail
   name: vcalculator.kb.io
   rules:
   - apiGroups:
-    - calculator.samples-k8s-ctrl.github.com
+    - calculator.sample-k8s-ctrl.github.com
     apiVersions:
     - v1alpha1
     operations:
