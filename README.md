@@ -123,6 +123,10 @@ make deploy IMG=etesami/sample-k8s-ctrl:latest
 make undeploy
 ```
 
+If you run the controller locally, you may use `export ENABLE_WEBHOOKS=false` and this will force the webhook to be diabled. 
+Otherwise, you need to provide certificates. Follow instructions [here](https://book.kubebuilder.io/cronjob-tutorial/running-webhook)
+to learn how to inject certificate using kastomize.
+
 ## Samples
 ```yml
 apiVersion: calculator.samples-k8s-ctrl.github.com/v1alpha1
@@ -165,14 +169,14 @@ kind: SimpleDeployment
 metadata:
   name: simpledeployment-sample
 spec:
-	# For custom field defined here see: api/test1/v1alpha1/simpledeployment_types.go
-	# Custom field is defined
+  # For custom field defined here see: api/test1/v1alpha1/simpledeployment_types.go
+  # Custom field is defined
   replicas: 1
-	# Custom field using K8S metav1.LabelSelector library
+  # Custom field using K8S metav1.LabelSelector library
   selector:
     matchLabels:
       app: nginx
-	# Custom field using K8S v1.PodTemplateSpec library
+  # Custom field using K8S v1.PodTemplateSpec library
   template:
     spec:
       containers:
@@ -180,8 +184,8 @@ spec:
         image: nginx:1.14.2
         ports:
         - containerPort: 80
-	# Custom field by defining a custom struct
-	# I could not get the this working using metav1.ObjectMeta library
+  # Custom field by defining a custom struct
+  # I could not get the this working using metav1.ObjectMeta library
   mymetadata: 
     labels: 
       app: nginx
