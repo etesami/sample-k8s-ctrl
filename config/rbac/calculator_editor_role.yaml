@@ -12,7 +12,7 @@ metadata:
   name: calculator-editor-role
 rules:
 - apiGroups:
-  - calculator.samples-k8s-ctrl.github.com
+  - calculator.sample-k8s-ctrl.github.com
   resources:
   - calculators
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - calculator.samples-k8s-ctrl.github.com
+  - calculator.sample-k8s-ctrl.github.com
   resources:
   - calculators/status
   verbs:

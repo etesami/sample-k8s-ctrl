@@ -2,7 +2,7 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: samples-k8s-ctrl.github.com
+domain: sample-k8s-ctrl.github.com
 layout:
 - go.kubebuilder.io/v4
 multigroup: true
@@ -13,18 +13,9 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: samples-k8s-ctrl.github.com
+  domain: sample-k8s-ctrl.github.com
   group: calculator
   kind: Calculator
   path: github.com/etesami/sample-k8s-ctrl/api/v1alpha1
-  version: v1alpha1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: samples-k8s-ctrl.github.com
-  group: test1
-  kind: SimpleDeployment
-  path: github.com/etesami/sample-k8s-ctrl/api/test1/v1alpha1
   version: v1alpha1
 version: "3"

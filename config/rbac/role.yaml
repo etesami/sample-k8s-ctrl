@@ -5,25 +5,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments/status
-  verbs:
-  - get
-- apiGroups:
-  - calculator.samples-k8s-ctrl.github.com
+  - calculator.sample-k8s-ctrl.github.com
   resources:
   - calculators
   verbs:
@@ -35,41 +17,15 @@ rules:
   - update
   - watch
 - apiGroups:
-  - calculator.samples-k8s-ctrl.github.com
+  - calculator.sample-k8s-ctrl.github.com
   resources:
   - calculators/finalizers
   verbs:
   - update
 - apiGroups:
-  - calculator.samples-k8s-ctrl.github.com
+  - calculator.sample-k8s-ctrl.github.com
   resources:
   - calculators/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - test1.samples-k8s-ctrl.github.com
-  resources:
-  - simpledeployments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - test1.samples-k8s-ctrl.github.com
-  resources:
-  - simpledeployments/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - test1.samples-k8s-ctrl.github.com
-  resources:
-  - simpledeployments/status
   verbs:
   - get
   - patch
