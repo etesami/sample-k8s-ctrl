@@ -160,34 +160,5 @@ kubebuilder edit --multigroup=true
 # Change all path every where related to internal/controller to internal/controller/calculator
 
 # Create the new API under a new group
-kubebuilder create api --group test1 --version v1alpha1 --kind SimpleDeployment
+kubebuilder create api --group newgroup --version v1alpha1 --kind SimpleDeployment
 ```
-A SimpleDeployment resource creates a deployment and maintain its number of replica and pod information. Take a look at the `api/test1/v1alpha1/simpledeployment_types.go`:
-```yaml
-apiVersion: test1.samples-k8s-ctrl.github.com/v1alpha1
-kind: SimpleDeployment
-metadata:
-  name: simpledeployment-sample
-spec:
-  # For custom field defined here see: api/test1/v1alpha1/simpledeployment_types.go
-  # Custom field is defined
-  replicas: 1
-  # Custom field using K8S metav1.LabelSelector library
-  selector:
-    matchLabels:
-      app: nginx
-  # Custom field using K8S v1.PodTemplateSpec library
-  template:
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
-  # Custom field by defining a custom struct
-  # I could not get the this working using metav1.ObjectMeta library
-  mymetadata: 
-    labels: 
-      app: nginx
-```
-Also, take a look at the `internal/controller/test1/simpledeployment_controller.go`.
