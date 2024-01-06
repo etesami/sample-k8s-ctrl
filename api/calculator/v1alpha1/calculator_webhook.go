@@ -48,6 +48,15 @@ func (r *Calculator) Default() {
 	calculatorlog.Info("default", "name", r.Name)
 
 	// TODO(user): fill in your defaulting logic.
+	// Check if "professional" annotation is set
+	annotations := r.ObjectMeta.GetAnnotations()
+	if annotations != nil && annotations["professional"] == "true" {
+		calculatorlog.Info("This is a professional calculator. Addming model.")
+		// Add "checked:true" annotation
+		annotations["model"] = "CX2032"
+		r.ObjectMeta.SetAnnotations(annotations)
+		calculatorlog.Info("Model is set as an annotation.")
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.

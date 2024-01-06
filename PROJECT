@@ -19,6 +19,7 @@ resources:
   path: github.com/etesami/sample-k8s-ctrl/api/calculator/v1alpha1
   version: v1alpha1
   webhooks:
+    conversion: true
     defaulting: true
     validation: true
     webhookVersion: v1
